@@ -16,6 +16,7 @@
   var emulator = null;
   var startToken = 0;
   var paused = false;
+  var holding = false;
 
   function showOverlay(text, opts) {
     opts = opts || {};
@@ -39,6 +40,7 @@
     emulator = null;
     queue.length = 0;
     paused = false;
+    holding = false;
     btnPause.textContent = 'Пауза';
     setReady(false);
   }
@@ -99,7 +101,7 @@
         vga_memory_size: 8 * 1024 * 1024,
         screen_container: screenEl,
         disable_keyboard: true,
-        autostart: true
+        autostart: false
       });
     } catch (err) {
       showOverlay('Ошибка запуска: ' + err.message, { error: true, retry: true });
@@ -115,13 +117,86 @@
     em.add_listener('emulator-ready', function () {
       clearTimeout(watchdog);
       if (em !== emulator || token !== startToken) return;
-      setReady(true);
+      presetClock(em);
       hideOverlay();
-      screenEl.focus();
-      statusEl.textContent = 'Система запущена. Кликните по экрану, чтобы вводить с клавиатуры.';
+      statusEl.textContent = 'Загрузка SPOC…';
+      em.run();
+      paceBoot(em, token);
     });
   }
 
+  // Программа принимает только годы до 2000-го, а форма GMT берёт время с часов компьютера.
+  // Ставим часы эмулятора на 24.04.1990 14:15 GMT (день 114): это через 1 ч 41 мин после старта
+  // STS-31 (12:33:51 GMT), позже вектора состояния (запуск + 1:13:35) и не позже чем через двое суток.
+  function presetClock(em) {
+    try {
+      var rtc = em.v86.cpu.devices.rtc;
+      rtc.rtc_time = Date.UTC(1990, 3, 24, 14, 15, 0);
+      rtc.last_update = Date.now();
+    } catch (e) { /* без этого форма GMT придётся заполнить вручную */ }
+  }
+
+  // Заставка загрузки в оригинале мелькает за доли секунды. Узнаём экраны по числу
+  // светящихся точек и ненадолго ставим эмуляцию на паузу, чтобы их можно было рассмотреть.
+  var SPLASH_HOLD_MS = 3000;
+  var MESSAGE_HOLD_MS = 1000;
+  var BOOT_LIMIT_MS = 25000;
+
+  function paceBoot(em, token) {
+    var startedAt = Date.now();
+    var cv = screenEl.querySelector('canvas');
+    var splashDone = false;
+    var inMessage = false;
+    var timer = null;
+
+    // После перезапуска на канвасе остаётся старый кадр: стираем его, чтобы не принять за новый
+    try { var c0 = cv.getContext('2d'); c0.clearRect(0, 0, cv.width, cv.height); } catch (e) { /* ignore */ }
+
+    function lit() {
+      // Каждая 4-я точка экрана: сколько из них светится
+      var ctx = cv.getContext('2d');
+      var d = ctx.getImageData(0, 0, cv.width, cv.height).data;
+      var n = 0;
+      for (var i = 0; i < d.length; i += 16) if (d[i] > 0) n++;
+      return n;
+    }
+
+    function finish() {
+      clearInterval(timer);
+      if (em !== emulator || token !== startToken) return;
+      holding = false;
+      setReady(true);
+      statusEl.textContent = 'Кликните по экрану, чтобы вводить с клавиатуры.';
+      screenEl.focus();
+    }
+
+    function hold(ms) {
+      holding = true;
+      queue.length = 0;
+      em.stop();
+      setTimeout(function () {
+        if (em !== emulator || token !== startToken) return;
+        holding = false;
+        em.run();
+      }, ms);
+    }
+
+    timer = setInterval(function () {
+      if (em !== emulator || token !== startToken) { clearInterval(timer); return; }
+      if (holding) return;
+      if (Date.now() - startedAt > BOOT_LIMIT_MS) { finish(); return; }
+      if (!splashDone && Date.now() - startedAt > 8000) { finish(); return; } // заставку не узнали
+      if (cv.width !== 640) return;
+      var n;
+      try { n = lit(); } catch (e) { finish(); return; }
+
+      if (splashDone && n > 8500) { finish(); return; }         // появилась первая форма
+      if (!splashDone && n > 4000) { splashDone = true; hold(SPLASH_HOLD_MS); return; }
+      var isMessage = splashDone && n > 1500 && n < 3000;       // строка «Searching…» / «Retrieving…»
+      if (isMessage && !inMessage) { inMessage = true; hold(MESSAGE_HOLD_MS); return; }
+      if (!isMessage) inMessage = false;
+    }, 10);
+  }
 
   // ---------- Клавиатура ----------
   // SPOC опрашивает клавиатуру по таймеру: слишком короткие или слишком частые нажатия
@@ -178,7 +253,7 @@
     var item = queue.shift();
     if (!item) { pumping = false; return; }
     pumping = true;
-    if (emulator && !paused) emulator.keyboard_send_scancodes(item.bytes);
+    if (emulator && !paused && !holding) emulator.keyboard_send_scancodes(item.bytes);
     setTimeout(pump, item.wait);
   }
 
@@ -226,12 +301,8 @@
   screenEl.addEventListener('blur', clearKeyboard);
 
   btnRestart.addEventListener('click', function () {
-    if (!emulator) return;
-    paused = false;
-    btnPause.textContent = 'Пауза';
     clearKeyboard();
-    emulator.restart();
-    screenEl.focus();
+    start(); // полный перезапуск: часы и заставка загрузки снова как при первом запуске
   });
 
   btnPause.addEventListener('click', function () {
@@ -239,6 +310,7 @@
     if (paused) { emulator.run(); btnPause.textContent = 'Пауза'; }
     else { emulator.stop(); btnPause.textContent = 'Продолжить'; }
     paused = !paused;
+    screenEl.focus();
   });
 
   btnFull.addEventListener('click', function () {
@@ -246,7 +318,9 @@
     if (document.fullscreenElement) {
       document.exitFullscreen();
     } else if (stage.requestFullscreen) {
-      stage.requestFullscreen().catch(function () {
+      stage.requestFullscreen().then(function () {
+        screenEl.focus();
+      }).catch(function () {
         statusEl.textContent = 'Полноэкранный режим недоступен в этом браузере.';
       });
     } else {

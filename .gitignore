@@ -25,3 +25,5 @@ Thumbs.db
 # Файлы агентов
 .codex
 .agents
+
+-tmp/

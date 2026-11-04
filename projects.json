@@ -47,5 +47,12 @@
     "readmePath": "afterlife_experiment/README.md",
     "createdAt": "2026-06-01",
     "topic": "Other"
+  },
+  {
+    "title": "SPoC Shuttle Computer",
+    "path": "spoc_virtualbox/index.html",
+    "readmePath": "spoc_virtualbox/README.md",
+    "createdAt": "2026-11-04",
+    "topic": "sim"
   }
 ]

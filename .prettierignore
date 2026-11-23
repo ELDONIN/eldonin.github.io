@@ -2,5 +2,6 @@ node_modules
 .next
 out
 references
+legacy
 pnpm-lock.yaml
 next-env.d.ts

@@ -1,0 +1,145 @@
+.app {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.stage {
+  position: relative;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+}
+
+.screen {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  outline: none;
+}
+
+.screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: #ffb000;
+  mix-blend-mode: multiply;
+}
+
+.screen:focus-visible {
+  box-shadow: inset 0 0 0 2px #ffb000;
+}
+
+.screen canvas {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 15 / 7;
+  background: #000;
+  display: block;
+}
+
+.screen .text {
+  max-width: 100%;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  white-space: pre;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.88);
+  text-align: center;
+  padding: var(--space-4);
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.overlay p {
+  margin: 0;
+}
+
+.overlay progress {
+  width: min(280px, 80%);
+  accent-color: #ffb000;
+}
+
+.overlayError p {
+  color: #ff9a9a;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.controls button,
+.overlay button {
+  font: inherit;
+  color: var(--fg);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 var(--space-4);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.controls button:hover:not(:disabled),
+.overlay button:hover:not(:disabled) {
+  border-color: #ffb000;
+}
+
+.controls button:focus-visible,
+.overlay button:focus-visible {
+  outline: 2px solid #ffb000;
+  outline-offset: 2px;
+}
+
+.controls button:disabled,
+.overlay button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.status:empty {
+  display: none;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}

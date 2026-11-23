@@ -4,7 +4,7 @@ export const articles = [
   {
     slug: 'afterlife-experiment',
     title: 'Afterlife Experiment',
-    description: 'Формальная модель слепого эксперимента: может ли сигнал пережить смерть.',
+    description: 'Формальная модель слепого эксперимента: может ли сигнал придти из загробного мира',
     createDate: '2026-06-01',
     updateDate: '2026-11-23',
     tags: ['experiment'],

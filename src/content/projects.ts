@@ -5,11 +5,10 @@ export const projects = [
     meta: {
       slug: 'game-of-life-on-toroid-gpu',
       title: 'Game Of Life On Toroid (GPU)',
-      description:
-        'Игра «Жизнь» Конвея на ~1,4 млн ячеек, развёрнутых на 3D-тор, с интерактивной камерой.',
+      description: 'Игра «Жизнь» Конвея на торе, с интерактивной камерой',
       createDate: '2026-03-31',
       updateDate: '2026-11-23',
-      tags: ['sim'],
+      tags: ['visualization'],
     },
     load: () => import('./projects/game-of-life-on-toroid-gpu'),
   },
@@ -17,10 +16,10 @@ export const projects = [
     meta: {
       slug: 'strange-attractors',
       title: 'Strange Attractors',
-      description: 'Сборник 3D-визуализаций хаотических систем.',
+      description: 'Сборник визуализаций хаотических систем',
       createDate: '2026-03-25',
       updateDate: '2026-11-23',
-      tags: ['gallery'],
+      tags: ['gallery', 'visualization'],
     },
     load: () => import('./projects/strange-attractors'),
   },
@@ -28,10 +27,10 @@ export const projects = [
     meta: {
       slug: 'spoc-virtualbox',
       title: 'SPoC Shuttle Computer',
-      description: 'Бортовой компьютер шаттла NASA в браузере через x86-эмулятор v86.',
+      description: 'Бортовой компьютер шаттла NASA в браузере',
       createDate: '2026-11-04',
       updateDate: '2026-11-23',
-      tags: ['sim'],
+      tags: ['simulator'],
     },
     load: () => import('./projects/spoc-virtualbox'),
   },
@@ -39,7 +38,7 @@ export const projects = [
     meta: {
       slug: 'imposing-clocks',
       title: 'Imposing Clocks',
-      description: 'Сборник странных идей для часового циферблата.',
+      description: 'Сборник странных идей для часового циферблата',
       createDate: '2026-04-01',
       updateDate: '2026-11-23',
       tags: ['gallery'],
@@ -50,10 +49,10 @@ export const projects = [
     meta: {
       slug: 'ascii-collection',
       title: 'ASCII Collection',
-      description: 'ASCII-меню с 3D-рендерером и парой классических игр.',
+      description: 'ASCII-меню с артами, 3D-рендерером и парой классических игр',
       createDate: '2026-03-27',
       updateDate: '2026-11-23',
-      tags: ['sim'],
+      tags: ['other'],
     },
     load: () => import('./projects/ascii-collection'),
   },
@@ -61,7 +60,7 @@ export const projects = [
     meta: {
       slug: 'parasocial-silly-cat',
       title: 'Parasocial Silly Cat',
-      description: 'Интерактивный котик.',
+      description: 'Интерактивный котик',
       createDate: '2026-10-04',
       updateDate: '2026-11-23',
       tags: ['other'],
@@ -71,8 +70,8 @@ export const projects = [
   {
     meta: {
       slug: 'smil-test',
-      title: 'Тест СМИЛ',
-      description: 'Психологический тест СМИЛ: 566 вопросов, автоматический подсчёт шкал и профиль личности.',
+      title: 'SMIL test',
+      description: 'Психологический тест СМИЛ: оценка индивидуальных свойств психики',
       createDate: '2026-11-23',
       updateDate: '2026-11-23',
       tags: ['test'],

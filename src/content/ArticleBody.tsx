@@ -1,4 +1,5 @@
 import { projects } from './projects'
+import { widgets } from './widgets'
 import { readArticleSource, MEDIA_DIR } from './articles.source'
 import { parseArticle } from '@/features/articles/lib/parse'
 import { renderArticle } from '@/features/articles/render'
@@ -12,7 +13,7 @@ export async function ArticleBody({ slug }: { slug: string }) {
   const tree = parseArticle(source, {
     file: `${slug}.md`,
     mediaDir: MEDIA_DIR,
-    projectSlugs: projects.map((p) => p.meta.slug),
+    projectSlugs: [...projects.map((p) => p.meta.slug), ...widgets.map((w) => w.slug)],
   })
   return (
     <Prose>

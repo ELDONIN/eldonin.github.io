@@ -4,9 +4,11 @@ import { describe, expect, it } from 'vitest'
 import { parseArticle } from '@/features/articles/lib/parse'
 import { articles } from './articles.meta'
 import { projects } from './projects'
+import { widgets } from './widgets'
 
 const ROOT = process.cwd()
 const PROJECTS_DIR = path.join(ROOT, 'src/content/projects')
+const WIDGETS_DIR = path.join(ROOT, 'src/content/widgets')
 const ARTICLES_DIR = path.join(ROOT, 'src/content/articles')
 const MEDIA_DIR = path.join(ROOT, 'public/media_articles')
 
@@ -30,6 +32,15 @@ describe('целостность контента', () => {
     }
   })
 
+  it('папки виджетов совпадают с widget.slug и содержат index.tsx', () => {
+    const slugs = new Set(widgets.map((w) => w.slug))
+    const dirs = readdirSync(WIDGETS_DIR).filter((d) => !d.startsWith('.'))
+    expect(new Set(dirs)).toEqual(slugs)
+    for (const slug of slugs) {
+      expect(existsSync(path.join(WIDGETS_DIR, slug, 'index.tsx'))).toBe(true)
+    }
+  })
+
   it('файлы статей совпадают со slug в мете (скрытые не учитываются)', () => {
     const files = readdirSync(ARTICLES_DIR).filter((f) => f.endsWith('.md'))
     const slugs = new Set(articles.map((a) => a.slug))
@@ -43,7 +54,7 @@ describe('целостность контента', () => {
         parseArticle(source, {
           file: `${a.slug}.md`,
           mediaDir: MEDIA_DIR,
-          projectSlugs: projects.map((p) => p.meta.slug),
+          projectSlugs: [...projects.map((p) => p.meta.slug), ...widgets.map((w) => w.slug)],
         }),
       ).not.toThrow()
     }

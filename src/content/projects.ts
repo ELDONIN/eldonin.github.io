@@ -59,17 +59,6 @@ export const projects = [
   },
   {
     meta: {
-      slug: 'afterlife-experiment',
-      title: 'Эксперимент о загробной жизни',
-      description: 'Интерактивный симулятор цепочек «донор — реципиент — монитор».',
-      createDate: '2026-06-01',
-      updateDate: '2026-06-01',
-      tags: ['experiment'],
-    },
-    load: () => import('./projects/afterlife-experiment'),
-  },
-  {
-    meta: {
       slug: 'parasocial-silly-cat',
       title: 'Parasocial Silly Cat',
       description: 'Интерактивный котик.',

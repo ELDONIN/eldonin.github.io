@@ -1335,28 +1335,28 @@ export function createSketch(
     event.preventDefault()
   }
 
-  const onPointerDown = (event: PointerEvent): void => {
+  function onPointerDown(event: PointerEvent): void {
     handlePointerDown(event)
   }
-  const onPointerMove = (event: PointerEvent): void => {
+  function onPointerMove(event: PointerEvent): void {
     handlePointerMove(event)
   }
-  const onPointerUp = (event: PointerEvent): void => {
+  function onPointerUp(event: PointerEvent): void {
     stopDragging(event)
   }
-  const onPointerLeave = (): void => {
+  function onPointerLeave(): void {
     resetDraggingState()
   }
-  const onPointerCancel = (event: PointerEvent): void => {
+  function onPointerCancel(event: PointerEvent): void {
     stopDragging(event)
   }
-  const onContextMenu = (event: Event): void => {
+  function onContextMenu(event: Event): void {
     preventDefault(event)
   }
-  const onWheel = (event: WheelEvent): void => {
+  function onWheel(event: WheelEvent): void {
     handleWheel(event)
   }
-  const onKeyDown = (event: KeyboardEvent): void => {
+  function onKeyDown(event: KeyboardEvent): void {
     handleKeyDown(event)
   }
 

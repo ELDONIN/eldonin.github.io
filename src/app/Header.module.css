@@ -11,8 +11,6 @@
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 4rem;
-  padding: 0 var(--space-4);
 }
 
 .brand {
@@ -20,6 +18,9 @@
   align-items: center;
   gap: var(--space-2);
   font-weight: 700;
+  flex: none;
+  width: 20rem;
+  padding-left: var(--space-4);
 }
 
 .logo {
@@ -42,8 +43,9 @@
 .link {
   display: inline-flex;
   align-items: center;
-  padding: 0 var(--space-2);
-  font-size: 1rem;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-size: 1.125rem;
   line-height: 1;
   color: var(--muted);
 }
@@ -55,6 +57,7 @@
 
 .themeBtn {
   margin-left: auto;
+  margin-right: var(--space-4);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -73,6 +76,22 @@
 .themeIcon {
   width: 22px;
   height: 22px;
+}
+
+@media (max-width: 48rem) {
+  .inner {
+    gap: 4rem;
+    padding: 0 var(--space-4);
+  }
+
+  .brand {
+    width: auto;
+    padding-left: 0;
+  }
+
+  .themeBtn {
+    margin-right: 0;
+  }
 }
 
 @media (hover: hover) {

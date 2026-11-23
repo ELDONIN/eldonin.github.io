@@ -508,7 +508,7 @@ export function createSketch(
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
     gl.disable(gl.CULL_FACE)
-    gl.clearColor(0.012, 0.031, 0.016, 1)
+    gl.clearColor(0.04, 0.04, 0.04, 1)
   }
 
   function createShader(glContext: WebGLRenderingContext, type: number, source: string): WebGLShader {

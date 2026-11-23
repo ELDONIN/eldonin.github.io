@@ -13,12 +13,12 @@
   --callout-warn: #e0af68;
   --callout-danger: #f7768e;
 
-  /* Логотип: тёмная звезда на светлом фоне */
-  --logo-bg: #ececec;
-  --logo-star: #0b0b0b;
+  /* Логотип: цвета текущей темы */
+  --logo-bg: var(--bg);
+  --logo-star: var(--fg);
 
   /* Каркас */
-  --header-h: 3rem;
+  --header-h: 4rem;
   --back-h: 2.75rem;
 
   /* Шрифты */
@@ -50,9 +50,9 @@
   --callout-warn: #c07f2a;
   --callout-danger: #c94f4f;
 
-  /* Логотип: светлая звезда на тёмном фоне */
-  --logo-bg: #1d1d21;
-  --logo-star: #e9e7e4;
+  /* Логотип: цвета текущей темы */
+  --logo-bg: var(--bg);
+  --logo-star: var(--fg);
 }
 
 *,

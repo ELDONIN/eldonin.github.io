@@ -11,7 +11,7 @@
   height: 100%;
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  gap: 4rem;
   padding: 0 var(--space-4);
 }
 
@@ -20,15 +20,16 @@
   align-items: center;
   gap: var(--space-2);
   font-weight: 700;
-  min-height: 44px;
 }
 
 .logo {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
 }
 
 .name {
+  font-size: 2rem;
+  line-height: 1;
   letter-spacing: -0.01em;
 }
 
@@ -41,19 +42,45 @@
 .link {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
   padding: 0 var(--space-2);
-  color: var(--fg);
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--muted);
 }
 
 .link[data-active='true'] {
-  text-decoration: underline;
-  text-underline-offset: 6px;
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.themeBtn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.themeBtn:hover {
+  color: var(--fg);
+  background: var(--code-bg);
+}
+
+.themeIcon {
+  width: 22px;
+  height: 22px;
 }
 
 @media (hover: hover) {
   .link:hover {
     color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: var(--muted);
+    text-underline-offset: 6px;
   }
 }
 

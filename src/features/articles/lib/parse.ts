@@ -9,6 +9,8 @@ import rehypeCallouts from 'rehype-callouts'
 import type { Root } from 'hast'
 import { remarkArticleRules } from './remarkArticleRules'
 import { rehypeMedia } from './rehypeMedia'
+import { rehypeFixMathml } from './rehypeFixMathml'
+import { rehypeUnwrapProject } from './rehypeUnwrapProject'
 
 export interface ParseOptions {
   file: string
@@ -26,8 +28,10 @@ export function parseArticle(source: string, options: ParseOptions): Root {
     .use(remarkMath)
     .use(remarkArticleRules, options)
     .use(remarkRehype)
+    .use(rehypeUnwrapProject)
     .use(rehypeSlug)
     .use(rehypeKatex)
+    .use(rehypeFixMathml)
     .use(rehypeCallouts, { theme: 'obsidian' })
     .use(rehypeMedia, options)
 

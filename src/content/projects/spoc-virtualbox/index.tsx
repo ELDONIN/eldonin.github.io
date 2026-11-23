@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion -- скан-коды и модификаторы заданы статически */
 /* eslint-disable @typescript-eslint/no-dynamic-delete -- downMods — словарь нажатых модификаторов */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition -- проверки Web API (fullscreen) */
+/* eslint-disable @next/next/no-img-element -- фото SPOC — статический ассет проекта */
 
 import { useEffect, useRef, useState } from 'react'
 import styles from './index.module.css'
@@ -10,7 +11,7 @@ import styles from './index.module.css'
 const BASE = '/projects/spoc-virtualbox'
 
 interface V86Emulator {
-  destroy(): void
+  destroy(): Promise<void>
   run(): void
   stop(): void
   add_listener(name: string, cb: () => void): void
@@ -168,12 +169,17 @@ export default function Project() {
     }
     function destroyEmulator(): void {
       if (!emulator) return
+      const em = emulator
+      emulator = null
       try {
-        emulator.destroy()
+        // libv86 destroy() — async: отказ (например, WASM ещё не загружен) гасим,
+        // иначе он всплывает как unhandled rejection.
+        void em.destroy().catch(() => {
+          /* ignore */
+        })
       } catch {
         /* ignore */
       }
-      emulator = null
       queue.length = 0
       paused = false
       holding = false
@@ -487,6 +493,14 @@ export default function Project() {
 
   return (
     <div className={styles.app}>
+      <header className={styles.head}>
+        <h2 className={styles.headTitle}>NASA SPOC Emulator</h2>
+        <p className={styles.headDesc}>
+          Бортовой компьютер SPOC космического челнока на ноутбуке GRiD Compass: загрузочная
+          дискета работает прямо в вашем браузере.
+        </p>
+      </header>
+
       <section className={styles.stage} ref={stageRef} aria-label="Экран эмулятора">
         <div className={styles.screen} ref={screenRef} tabIndex={0}>
           <div className={styles.text} />
@@ -525,6 +539,209 @@ export default function Project() {
         Клавиша CODE — это Alt (на Mac — Option). Alt+Enter подтверждает форму целиком; если везде
         просто нажимать Alt+Enter, получатся данные миссии STS-31.
       </p>
+
+      <article className={styles.doc}>
+        <section>
+          <h2>1. Управление</h2>
+          <p>
+            Эмулятор работает с физической клавиатурой: сначала кликните по экрану, чтобы он получил
+            фокус.
+          </p>
+          <ul>
+            <li>
+              Клавиша <b>CODE</b> в SPOC — это <kbd>Alt</kbd> (на Mac — <kbd>Option</kbd>). Её нужно
+              удерживать, пока нажимается вторая клавиша.
+            </li>
+            <li>
+              <kbd>Alt</kbd>+<kbd>Enter</kbd> (CODE-RETURN) — подтвердить форму целиком и перейти дальше.
+            </li>
+            <li>
+              <kbd>Enter</kbd> (RETURN) — перейти к следующему полю формы.
+            </li>
+            <li>
+              <kbd>Alt</kbd>+<kbd>Backspace</kbd> — стереть значение поля целиком; обычный{' '}
+              <kbd>Backspace</kbd> стирает по одному символу.
+            </li>
+            <li>
+              <kbd>Alt</kbd>+<kbd>Esc</kbd> — отменить ввод и вернуться назад.
+            </li>
+            <li>
+              <kbd>Alt</kbd>+<kbd>?</kbd> — справка по текущему экрану.
+            </li>
+            <li>Стрелки — выбор пункта в меню.</li>
+            <li>
+              Кнопки под экраном: «Перезапуск» загружает дискету заново, «Пауза» замораживает эмуляцию,
+              «На весь экран» растягивает экран (выход — <kbd>Esc</kbd>).
+            </li>
+            <li>На телефоне и планшете нужна подключённая клавиатура: экранной клавиатуры нет.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>2. Что нужно вводить при запуске</h2>
+          <p className={styles.note}>
+            <b>
+              Если везде просто нажимать <kbd>Alt</kbd>+<kbd>Enter</kbd>, вы получите данные миссии STS-31
+            </b>{' '}
+            — старт шаттла «Дискавери» с телескопом «Хаббл» 24 апреля 1990 года в 12:33:51 GMT
+            (космический центр Кеннеди, площадка LC-39B). Время старта и часы эмулятора настроены под
+            эту миссию. Вектор состояния — штатный условный вектор программы, а не реальный вектор STS-31.
+          </p>
+          <p>
+            После загрузки SPOC последовательно показывает три формы. Значения по умолчанию уже корректны,
+            достаточно нажимать <kbd>Alt</kbd>+<kbd>Enter</kbd> на каждом экране. Правило программы 1980-х:
+            годы только <b>до 2000-го</b>, время запуска &lt; время вектора состояния &lt; текущее время, и
+            между вектором и текущим временем не больше двух суток.
+          </p>
+          <h3>Форма 1. Launch Time Update — время старта миссии (GMT)</h3>
+          <p>
+            Год (1983–1999), день года, часы, минуты, секунды по Гринвичу. По умолчанию: 1990 год, день 114,
+            12:33:51 (это 24 апреля, старт STS-31).
+          </p>
+          <h3>Форма 2. GMT Update — текущее время</h3>
+          <p>
+            День года, часы, минуты и год «сейчас». Часы эмулятора заранее выставлены на 24 апреля 1990 года,
+            около 14:15 GMT, потому что программа не принимает 2020-е годы.
+          </p>
+          <h3>Форма 3. State Vector Update — вектор состояния</h3>
+          <p>Положение и скорость корабля на орбите в системе координат M50 плюс момент времени:</p>
+          <ul>
+            <li>
+              <b>Day / Hour / Minute / Second (GMT)</b> — время привязки вектора (по умолчанию запуск + 1 ч
+              13 мин 35 с);
+            </li>
+            <li>
+              <b>X, Y, Z Position (KFt)</b> — координаты в тысячах футов;
+            </li>
+            <li>
+              <b>X, Y, Z Velocity (KFt/Sec)</b> — скорость в тысячах футов в секунду.
+            </li>
+          </ul>
+          <p>
+            После <kbd>Alt</kbd>+<kbd>Enter</kbd> появится контрольная проверка: <code>Inclination = 28.522</code>,{' '}
+            <code>HA=200; HP=189</code>. Если значения разумны, подтвердите ещё раз — откроется главное меню.
+          </p>
+          <h3>Путь «просто вперёд»</h3>
+          <ol>
+            <li>Launch Time Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
+            <li>GMT Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
+            <li>
+              State Vector Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>, затем ещё раз после контрольной проверки.
+            </li>
+            <li>Главное меню: <b>Display World Map</b> — <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
+            <li>
+              Менеджер станций: <b>Invoke Default Communication Sites</b> — <kbd>Alt</kbd>+<kbd>Enter</kbd>.
+              Через несколько секунд появится карта мира.
+            </li>
+            <li>
+              На карте <kbd>Alt</kbd>+<kbd>?</kbd> открывает список функций, <kbd>Alt</kbd>+<kbd>Esc</kbd>{' '}
+              возвращает в главное меню.
+            </li>
+          </ol>
+          <h3>Если хотите ввести значения вручную</h3>
+          <p>Оригинальное демо из Flight Procedures Handbook:</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Форма</th>
+                <th>Поля по порядку</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Launch Time Update</td>
+                <td>Year 1988 · Day 300 · Hour 0 · Minute 0 · Second 0</td>
+              </tr>
+              <tr>
+                <td>GMT Update</td>
+                <td>Day 300 · Hour 0 · Minute 0 · Year 1988</td>
+              </tr>
+              <tr>
+                <td>State Vector — время</td>
+                <td>Day 300 · Hour 0 · Minute 0 · Second 0</td>
+              </tr>
+              <tr>
+                <td>State Vector — позиция</td>
+                <td>X −4065.5451 · Y 19478.6516 · Z −9134.2843</td>
+              </tr>
+              <tr>
+                <td>State Vector — скорость</td>
+                <td>X −23.4998543 · Y −7.6119311 · Z −5.7686384</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            После формы GMT появится <code>CAUTION: Vector is in the future</code> — это нормально, нажмите{' '}
+            <kbd>Alt</kbd>+<kbd>Enter</kbd>.
+          </p>
+        </section>
+
+        <section>
+          <h2>3. Роль SPOC в истории</h2>
+          <figure className={styles.figure}>
+            <img
+              src={`${BASE}/spoc-onboard.jpg`}
+              alt="Член экипажа челнока с блокнотом в руках рядом с ноутбуком GRiD, на экране которого видна карта мира с трассой орбиты"
+              loading="lazy"
+            />
+            <figcaption className={styles.figcaption}>
+              SPOC на борту: на янтарном экране ноутбука — карта мира с границей дня и ночи и трассой орбиты.
+            </figcaption>
+          </figure>
+          <p>
+            SPOC (Shuttle Portable Onboard Computer) — один из первых портативных компьютеров в космосе.
+            С первого полёта (STS-1) независимые расчёты на борту делал калькулятор HP-41. В 1983 году NASA
+            выбрало ноутбук GRiD Compass 1101, и на STS-9 он впервые полетел как проверка идеи. SPOC оказался
+            так полезен для «ситуационной осведомлённости» экипажа, что летал на каждой следующей миссии, а
+            начиная с 41-G на борту было уже два комплекта.
+          </p>
+          <ul>
+            <li>
+              <b>Что он делал.</b> Показывал карту мира, текущее положение корабля, границу дня и ночи, текущую
+              и две будущие трассы, времена входа в зону связи и выхода из неё (AOS/LOS) для наземных станций
+              и спутников TDRS, восход и закат на орбите.
+            </li>
+            <li>
+              <b>Зачем это нужно.</b> Экономил время Центра управления полётом: не нужно было передавать
+              таблицы голосом или телетайпом.
+            </li>
+            <li>
+              <b>Железо.</b> Ноутбуки дорабатывали для полёта: вместо модема — вентилятор, защита батареи
+              часов и экран против излучения. Электролюминесцентный дисплей светился жёлто-янтарным — отсюда
+              цвет экрана.
+            </li>
+            <li>
+              <b>Статус.</b> «Некритичное, но обязательное» оборудование: отказ не угрожал миссии, но без него
+              работать было сложнее.
+            </li>
+          </ul>
+          <p>
+            Образ на этой странице — публичная редакция SPOC, которую NASA распространяла через Spacelink для
+            обычных IBM PC. Она запускается в эмуляторе x86, а не на полётном ноутбуке GRiD.
+          </p>
+        </section>
+
+        <section>
+          <h2>4. Ссылки</h2>
+          <ul>
+            <li>
+              <a href="https://www.youtube.com/watch?v=quHlMiwTQZs" target="_blank" rel="noopener noreferrer">
+                Видео-демонстрация на YouTube
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/robertely/SPOC-VirtualBox" target="_blank" rel="noopener noreferrer">
+                Проект SPOC-VirtualBox на GitHub
+              </a>
+            </li>
+            <li>
+              <a href="https://youtu.be/OoZAdkxdjb8" target="_blank" rel="noopener noreferrer">
+                Обзор ноутбуков GRiD на YouTube
+              </a>
+            </li>
+          </ul>
+        </section>
+      </article>
     </div>
   )
 }

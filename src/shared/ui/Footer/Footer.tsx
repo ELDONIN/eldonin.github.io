@@ -3,8 +3,8 @@ import styles from './Footer.module.css'
 
 export function Footer() {
   return (
-    <footer className={styles.footer} lang="en">
-      {SITE_YEAR} ELDONIN
+    <footer className={styles.footer}>
+      <span lang="en">{SITE_YEAR} ELDONIN</span>
     </footer>
   )
 }

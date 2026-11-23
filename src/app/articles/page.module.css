@@ -1,4 +1,9 @@
 .empty {
-  padding: var(--space-6) var(--space-4);
+  display: grid;
+  place-items: center;
+  min-height: calc(100dvh - var(--header-h));
+  padding: var(--space-8) var(--space-4);
   color: var(--muted);
+  font-size: 1.5rem;
+  text-align: center;
 }

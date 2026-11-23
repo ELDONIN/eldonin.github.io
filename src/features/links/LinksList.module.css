@@ -25,6 +25,7 @@
   .item:hover .title,
   .item:focus-visible .title {
     text-decoration: underline;
+    text-decoration-color: var(--muted);
     text-underline-offset: 4px;
   }
 }

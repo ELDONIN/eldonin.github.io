@@ -1,22 +1,29 @@
-# Collection of Ideas
+# Gnozila
 
-Небольшая коллекция моих ларп веб-экспериментов, визуализаций и интерактивных мини-проектов.
+Статический сайт: интерактивные визуализации (Playground), статьи (Articles) и ссылки (Links).
+Публикуется на GitHub Pages по адресу `https://eldonin.github.io`.
+
+## Стек
+
+Next.js (App Router, статический экспорт), TypeScript, pnpm, CSS Modules, unified + KaTeX + shiki + mermaid, Vitest.
+
+## Команды
+
+```sh
+pnpm install       # установка зависимостей
+pnpm dev           # режим разработки
+pnpm check         # lint + typecheck + test + build (обязателен перед публикацией)
+pnpm build         # сборка статического сайта в out/
+```
 
 ## Структура
 
-```text
-Collection_of_ideas/
-├── PROJECT_GUIDELINES.md   # правила для будущих проектов
-├── PLAN.md                 # заметки и идеи
-├── README.md
-├── index.html              # главная страница-каталог
-├── projects.json           # список проектов для витрины
-└── project_name/           # подпроекты с собственными README и index.html
-    ├── index.html
-    └── README.md
-```
+- `src/app/` — маршруты, layout, страницы ошибок.
+- `src/content/` — проекты, статьи, ссылки, их метаданные.
+- `src/features/` — коллекция (теги/фильтр), статьи (Markdown-конвейер), ссылки.
+- `src/shared/` — общее: `CanvasHost`, `Footer`, `InView`, шрифты, SEO.
+- `public/` — статика (логотип, og-картинка, медиа статей).
+- `references/` — read-only справочные материалы (не входят в сборку).
 
-## Как открыть
+Полная спецификация — в `migration.md` (часть I — требования, часть II — реализация).
 
-1. Перейти на опубликованную версию: [Vibe Collection](https://eldonin.github.io/Vibe_Collection/)
-2. Или открыть репозиторий локально и запустить `index.html` через локальный сервер

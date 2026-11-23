@@ -1,0 +1,23 @@
+.source {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  background: var(--code-bg);
+  padding: 1em;
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.diagram {
+  overflow-x: auto;
+  margin: 0 0 1em;
+}
+
+.error {
+  margin: 0 0 1em;
+}
+
+.message {
+  color: var(--callout-danger);
+  font-size: 0.875rem;
+  margin-top: 0.5em;
+}

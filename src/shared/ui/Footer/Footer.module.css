@@ -1,0 +1,6 @@
+.footer {
+  margin-top: auto;
+  padding: var(--space-3) 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}

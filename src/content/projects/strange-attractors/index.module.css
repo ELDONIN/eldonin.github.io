@@ -1,0 +1,28 @@
+.root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #101010;
+}
+
+.label {
+  position: absolute;
+  left: 24px;
+  bottom: 22px;
+  pointer-events: none;
+  color: var(--fg);
+}
+
+.title {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}

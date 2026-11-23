@@ -1,0 +1,15 @@
+.wrap {
+  padding: var(--space-6) var(--space-4);
+}
+
+.wrap p {
+  margin-bottom: var(--space-4);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  color: var(--accent);
+}

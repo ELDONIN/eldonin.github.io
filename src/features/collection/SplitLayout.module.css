@@ -1,0 +1,72 @@
+.root {
+  display: grid;
+  grid-template-columns: 20rem minmax(0, 1fr);
+  align-items: start;
+}
+
+.aside {
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100dvh - var(--header-h));
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.detail {
+  min-width: 0;
+}
+
+.detailApp {
+  height: calc(100dvh - var(--header-h));
+  overflow: hidden;
+}
+
+.back {
+  display: none;
+}
+
+/* breakpoint: см. раздел 14 */
+@media (max-width: 48rem) {
+  .root {
+    display: block;
+  }
+
+  .aside {
+    position: static;
+    height: auto;
+    border-right: none;
+  }
+
+  .root[data-has-selection='true'] .aside {
+    display: none;
+  }
+
+  .root:not([data-has-selection='true']) .detail {
+    display: none;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--back-h);
+    padding: 0 var(--space-4);
+    color: var(--muted);
+  }
+
+  .detailApp {
+    height: calc(100dvh - var(--header-h) - var(--back-h));
+  }
+}
+
+@media print {
+  .aside,
+  .back {
+    display: none;
+  }
+
+  .detailApp {
+    height: auto;
+    overflow: visible;
+  }
+}

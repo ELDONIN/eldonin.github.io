@@ -1,0 +1,11 @@
+.article {
+  max-width: 48rem;
+  padding: var(--space-8) var(--space-4);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--space-6);
+}

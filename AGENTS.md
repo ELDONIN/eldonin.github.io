@@ -24,13 +24,14 @@ app → content → features → shared
 ## Контент
 
 - **Статья** — Markdown в `content/articles/<slug>.md`. Запрещено: frontmatter, `#` (h1), HTML, `[[wikilinks]]`. Медиа — `/media_articles/<имя>`. Встраивание проекта/виджета — ```` ```project slug=<slug> height=<px> ````.
-- **Проект (Playground)** — React-компонент. Canvas — через `shared/ui/CanvasHost` (фабрика `createSketch`); DOM/SVG — через хуки `shared/lib/host` (`useElementSize`, `useActive`). Прямое использование `requestAnimationFrame`/`ResizeObserver`/`IntersectionObserver` в `content/projects/**` запрещено линтером (исключение — `eslint-disable` с причиной). Самодостаточные legacy-приложения допустимо запускать в iframe из `public/projects/<slug>/` (пример — `smil-test`).
+- **Проект (Playground)** — React-компонент. Canvas — через `shared/ui/CanvasHost` (фабрика `createSketch`); DOM/SVG — через хуки `shared/lib/host` (`useElementSize`, `useActive`). Прямое использование `requestAnimationFrame`/`ResizeObserver`/`IntersectionObserver` в `content/projects/**` запрещено линтером (исключение — `eslint-disable` с причиной). Самодостаточные legacy-приложения допустимо запускать в iframe из `public/projects/<slug>/`, если портирование в React нецелесообразно.
 - **Виджет статьи** — `content/widgets/<slug>/index.tsx` (клиентский компонент; в реестре только `slug` и `load`, без меты). Встраивается блоком ```` ```project ````, в Playground не попадает.
 
 ## Стиль
 
-- Цвета и размеры — только через токены из `src/app/globals.css` (`--bg`, `--fg`, `--muted`, `--border`, `--accent`, `--code-bg`, `--callout-*`, `--space-*`, `--radius`, `--header-h`, `--font-*`, `--logo-*`). Литералы не писать (кроме явно оговорённых для отдельных проектов).
+- Цвета и размеры — только через токены из `src/app/globals.css` (`--bg`, `--fg`, `--muted`, `--border`, `--accent`, `--code-bg`, `--callout-*`, `--space-*`, `--radius`, `--header-h`, `--font-*`, `--surface-*`, `--logo-*`). Литералы не писать (кроме явно оговорённых для отдельных проектов).
 - Тёмная тема по умолчанию + светлая (`:root[data-theme='light']`). Переключатель — в шапке, выбор хранится в `localStorage`.
+- Проекты Playground по возможности используют те же токены и переключаются вместе с темой сайта; собственная палитра — только как часть замысла (см. `docs/REQUIREMENTS.md`).
 - Один брейкпоинт: `48rem` (768px).
 - `:hover` — только внутри `@media (hover: hover)`; `:focus-visible` у всех интерактивных элементов; без свечения (`text-shadow`/glow).
 

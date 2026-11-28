@@ -7,19 +7,14 @@ export const links = [
     url: 'https://sunandstuff.com/',
   },
   {
-    title: 'Neocities',
-    description: 'Хостинг независимых сайтов с вайбом старого веба.',
-    url: 'https://neocities.org/',
-  },
-  {
-    title: 'Radio KWSX',
-    description: 'Независимая интернет-радиостанция.',
-    url: 'https://radio.kwsx.online/',
-  },
-  {
     title: 'The Frutiger Aero Archive',
     description: 'Любители Frutiger Aero налетайте!',
     url: 'https://frutigeraeroarchive.org/music',
+  },
+  {
+    title: 'Neocities',
+    description: 'Хостинг независимых сайтов с вайбом старого веба.',
+    url: 'https://neocities.org/browse/',
   },
   {
     title: 'Dither it!',
@@ -47,6 +42,16 @@ export const links = [
     url: 'https://destroy.spritefusion.com',
   },
   {
+    title: 'Radio KWSX',
+    description: 'Независимая интернет-радиостанция.',
+    url: 'https://radio.kwsx.online/',
+  },
+  {
+    title: 'Every Noise at Once',
+    description: 'Интерактивная карта музыкальных жанров.',
+    url: 'https://everynoise.com/',
+  },
+  {
     title: 'WikiHow — вычислить число Пи',
     description: 'Инструкция по вычислению числа Пи с помощью хот-догов.',
     url: 'https://ru.wikihow.com/%D1%80%D0%B0%D1%81%D1%81%D1%87%D0%B8%D1%82%D0%B0%D1%82%D1%8C-%D1%87%D0%B8%D1%81%D0%BB%D0%BE-%D0%9F%D0%B8-%D1%81-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E-%D1%85%D0%BE%D1%82-%D0%B4%D0%BE%D0%B3%D0%BE%D0%B2',
@@ -55,10 +60,5 @@ export const links = [
     title: 'See Gore',
     description: 'Шок-контент для щекотания выжженной души.',
     url: 'https://goresee.com/',
-  },
-  {
-    title: 'Every Noise at Once',
-    description: 'Интерактивная карта музыкальных жанров.',
-    url: 'https://everynoise.com/',
   },
 ] as const satisfies readonly LinkEntry[]

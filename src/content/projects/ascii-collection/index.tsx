@@ -2,26 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { mountAsciiCollection } from './main'
-
-const BASE = '/projects/ascii-collection'
-
-function loadStylesheet(href: string): Promise<void> {
-  const existing = document.querySelector(`link[rel="stylesheet"][href="${href}"]`)
-  if (existing) return Promise.resolve()
-
-  return new Promise((resolve) => {
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = href
-    link.onload = () => {
-      resolve()
-    }
-    link.onerror = () => {
-      resolve()
-    }
-    document.head.append(link)
-  })
-}
+import './ascii.css'
 
 function loadFont(): Promise<void> {
   // Пиксельный шрифт 8x16 определяет размер знакоместа; пока он не загружен,
@@ -50,7 +31,6 @@ export default function Project() {
     let cancelled = false
 
     async function boot(): Promise<void> {
-      await loadStylesheet(`${BASE}/ascii.css`)
       await loadFont()
       if (!cancelled) destroy = mountAsciiCollection(root, terminal)
     }

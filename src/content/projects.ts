@@ -25,17 +25,6 @@ export const projects = [
   },
   {
     meta: {
-      slug: 'spoc-virtualbox',
-      title: 'SPoC Shuttle Computer',
-      description: 'Бортовой компьютер шаттла NASA в браузере',
-      createDate: '2026-11-04',
-      updateDate: '2026-11-23',
-      tags: ['simulator'],
-    },
-    load: () => import('./projects/spoc-virtualbox'),
-  },
-  {
-    meta: {
       slug: 'imposing-clocks',
       title: 'Imposing Clocks',
       description: 'Сборник странных идей для часового циферблата',
@@ -73,10 +62,21 @@ export const projects = [
       title: 'SMIL test',
       description: 'Психологический тест СМИЛ: оценка индивидуальных свойств психики',
       createDate: '2026-11-23',
-      updateDate: '2026-11-23',
+      updateDate: '2026-11-28',
       tags: ['test'],
     },
     load: () => import('./projects/smil-test'),
+  },
+    {
+    meta: {
+      slug: 'spoc-emulator',
+      title: 'SPoC Shuttle Computer',
+      description: 'Бортовой компьютер шаттла NASA в браузере',
+      createDate: '2026-11-04',
+      updateDate: '2026-11-28',
+      tags: ['simulator'],
+    },
+    load: () => import('./projects/spoc-emulator'),
   },
 ] as const satisfies readonly ProjectEntry[]
 

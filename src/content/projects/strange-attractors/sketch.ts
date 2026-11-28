@@ -7,10 +7,14 @@ const PARTICLE_COUNT = 1400
 const SUBSTEPS = 4
 const BASE_SCALE = 15.5
 const TRAIL_FADE = 0.4
-const BACKGROUND_COLOR = '#101010'
 const FRAME_TIME_MS = 1000 / 60
 const MAX_FRAME_DELTA_MS = 100
 const MAX_SIMULATION_STEPS_PER_FRAME = 12
+
+function readToken(name: string): string {
+  if (typeof document === 'undefined') return ''
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
 
 interface Vec3 {
   x: number
@@ -32,6 +36,9 @@ export function createSketch(
   const context = canvas.getContext('2d')
   if (context === null) throw new Error('2d context unavailable')
   const ctx = context
+
+  let backgroundColor = readToken('--surface-deep')
+  let particleColor = readToken('--fg')
 
   let width = 0
   let height = 0
@@ -172,12 +179,9 @@ export function createSketch(
   }
 
   function clearCanvas(): void {
-    ctx.fillStyle = BACKGROUND_COLOR
+    ctx.globalAlpha = 1
+    if (backgroundColor) ctx.fillStyle = backgroundColor
     ctx.fillRect(0, 0, width, height)
-  }
-
-  function rgba(r: number, g: number, b: number, a: number): string {
-    return 'rgba(' + [r, g, b, a].join(',') + ')'
   }
 
   function renderFrame(
@@ -190,8 +194,10 @@ export function createSketch(
     attractorOffsetX = layout.offsetX * viewScale
     attractorOffsetY = layout.offsetY * viewScale
 
-    ctx.fillStyle = rgba(16, 16, 16, TRAIL_FADE)
+    ctx.globalAlpha = TRAIL_FADE
+    if (backgroundColor) ctx.fillStyle = backgroundColor
     ctx.fillRect(0, 0, width, height)
+    ctx.globalAlpha = 1
 
     const projected: { x: number; y: number; depth: number; alpha: number; size: number }[] = []
     for (const particle of particles) {
@@ -206,21 +212,23 @@ export function createSketch(
     }
     projected.sort((a, b) => a.depth - b.depth)
 
+    if (particleColor) ctx.fillStyle = particleColor
     for (const point of projected) {
       const radius = point.size * point.depth
       const x = point.x + attractorOffsetX + offsetX
       const y = point.y + attractorOffsetY + offsetY
 
+      ctx.globalAlpha = 0.05 * point.alpha * point.depth
       ctx.beginPath()
-      ctx.fillStyle = rgba(255, 255, 255, 0.05 * point.alpha * point.depth)
       ctx.arc(x, y, radius * 2.5, 0, Math.PI * 2)
       ctx.fill()
 
+      ctx.globalAlpha = 0.9 * point.alpha
       ctx.beginPath()
-      ctx.fillStyle = rgba(255, 255, 255, 0.9 * point.alpha)
       ctx.arc(x, y, Math.max(0.45, radius), 0, Math.PI * 2)
       ctx.fill()
     }
+    ctx.globalAlpha = 1
   }
 
   function switchAttractor(direction: number): void {
@@ -282,6 +290,24 @@ export function createSketch(
   seedParticles()
   onNameChange(getCurrentAttractor().name)
 
+  const themeObserver = new MutationObserver(() => {
+    const nextBackground = readToken('--surface-deep')
+    const nextParticles = readToken('--fg')
+    if (nextBackground) backgroundColor = nextBackground
+    if (nextParticles) particleColor = nextParticles
+    if (width === 0 || height === 0) return
+
+    // Шлейфы были в цвете прежней темы — начинаем с чистого холста.
+    clearCanvas()
+    const activeCamera = camera.getActiveCamera()
+    const activeView = camera.getActiveView()
+    renderFrame(activeCamera.matrix, activeView.scale, activeView.offsetX, activeView.offsetY)
+  })
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  })
+
   return {
     resize(size: HostSize) {
       width = size.width
@@ -324,6 +350,7 @@ export function createSketch(
       canvas.removeEventListener('dblclick', onDoubleClick)
       canvas.removeEventListener('pointerleave', onPointerLeave)
       window.removeEventListener('keydown', handleKeydown)
+      themeObserver.disconnect()
     },
   }
 }

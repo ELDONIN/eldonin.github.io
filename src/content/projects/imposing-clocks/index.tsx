@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { mountClockGallery } from './clock'
+import './clock.css'
 
 const BASE = '/projects/imposing-clocks'
 
@@ -28,6 +29,7 @@ function loadLeaflet(): Promise<void> {
       resolve()
     }
     script.onerror = () => {
+      console.error(`Не удалось загрузить Leaflet: ${script.src}`)
       resolve()
     }
     document.head.append(script)
@@ -48,7 +50,6 @@ export default function Project() {
     let destroy: (() => void) | undefined
     let cancelled = false
 
-    loadStylesheet(`${BASE}/clock.css`)
     void loadLeaflet().then(() => {
       if (!cancelled) destroy = mountClockGallery(root, title, hint)
     })

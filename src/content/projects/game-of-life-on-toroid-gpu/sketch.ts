@@ -98,6 +98,30 @@ const CONFIG = {
   initialViewQuaternion: quaternionFromEuler({ x: -0.78, y: 0.3, z: 0 }),
 }
 
+function readToken(name: string): string {
+  if (typeof document === 'undefined') return ''
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
+function parseColor(value: string): [number, number, number] | null {
+  const hex = /^#([0-9a-f]{6})$/i.exec(value)
+  const hexValue = hex?.[1]
+  if (hexValue) {
+    const packed = Number.parseInt(hexValue, 16)
+    return [((packed >> 16) & 255) / 255, ((packed >> 8) & 255) / 255, (packed & 255) / 255]
+  }
+
+  const rgb = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/i.exec(value)
+  const red = rgb?.[1]
+  const green = rgb?.[2]
+  const blue = rgb?.[3]
+  if (red && green && blue) {
+    return [Number(red) / 255, Number(green) / 255, Number(blue) / 255]
+  }
+
+  return null
+}
+
 const FRAGMENT_PRECISION = `
   #ifdef GL_FRAGMENT_PRECISION_HIGH
   precision highp float;
@@ -445,6 +469,15 @@ export function createSketch(
   resetSimulation()
   render()
 
+  const themeObserver = new MutationObserver(() => {
+    applyThemeBackground()
+    render()
+  })
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  })
+
   function createInitialState(): State {
     return {
       width: 0,
@@ -504,11 +537,17 @@ export function createSketch(
     }
   }
 
+  function applyThemeBackground(): void {
+    const color = parseColor(readToken('--surface-deep'))
+    if (color) gl.clearColor(color[0], color[1], color[2], 1)
+  }
+
   function configureGl(): void {
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
     gl.disable(gl.CULL_FACE)
-    gl.clearColor(0.04, 0.04, 0.04, 1)
+    gl.clearColor(0, 0, 0, 1)
+    applyThemeBackground()
   }
 
   function createShader(glContext: WebGLRenderingContext, type: number, source: string): WebGLShader {
@@ -1415,6 +1454,7 @@ export function createSketch(
       canvas.removeEventListener('contextmenu', onContextMenu)
       canvas.removeEventListener('wheel', onWheel)
       window.removeEventListener('keydown', onKeyDown)
+      themeObserver.disconnect()
     },
   }
 }

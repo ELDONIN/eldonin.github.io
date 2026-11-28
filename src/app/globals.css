@@ -13,6 +13,15 @@
   --callout-warn: #e0af68;
   --callout-danger: #f7768e;
 
+  /* Неровный фон поверхностей: блик + градиент из ролей */
+  --surface-glow: color-mix(in srgb, var(--fg) 8%, transparent);
+  --surface-top: var(--bg);
+  --surface-bottom: color-mix(in srgb, var(--bg) 70%, var(--fg) 30%);
+  --surface: radial-gradient(circle at top, var(--surface-glow), transparent 28%),
+    linear-gradient(160deg, var(--surface-top) 0%, var(--surface-bottom) 100%);
+  /* Глубокий фон сцен (canvas): в тёмной теме темнее --bg */
+  --surface-deep: #0e0e12;
+
   /* Логотип: цвета текущей темы */
   --logo-bg: var(--bg);
   --logo-star: var(--fg);
@@ -20,6 +29,8 @@
   /* Каркас */
   --header-h: 4rem;
   --back-h: 2.75rem;
+  /* Ширина колонки бренда в шапке: от неё начинается навигация по разделам */
+  --brand-w: 20rem;
 
   /* Шрифты */
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -49,6 +60,9 @@
   --callout-success: #4f8f4f;
   --callout-warn: #c07f2a;
   --callout-danger: #c94f4f;
+
+  /* Слегка серый, чтобы сцена отличалась от белого фона сайта */
+  --surface-deep: #e8e6e2;
 
   /* Логотип: цвета текущей темы */
   --logo-bg: var(--bg);

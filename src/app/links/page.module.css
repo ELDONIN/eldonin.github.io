@@ -1,6 +1,18 @@
 .content {
+  /* Список начинается там же, где подписи разделов в шапке:
+     колонка бренда (--brand-w) + боковой отступ ссылки навигации */
   padding: var(--space-6) var(--space-4);
-  max-width: 48rem;
+  padding-left: calc(var(--brand-w) + var(--space-3));
+  max-width: calc(var(--brand-w) + 48rem);
   width: 100%;
-  margin: 0 auto;
+}
+
+/* breakpoint: см. раздел 14 */
+@media (max-width: 48rem) {
+  .content {
+    /* В шапке бренд-колонка на мобильных сжимается — сохраняем прежнюю вёрстку */
+    max-width: 48rem;
+    margin: 0 auto;
+    padding-left: var(--space-4);
+  }
 }

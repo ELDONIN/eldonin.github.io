@@ -39,10 +39,10 @@ Gnozila/
 │   └── ROADMAP.md                 # идеи на будущее
 ├── public/                        # копируется в out/ как есть
 │   ├── .nojekyll
-│   ├── logo.svg                   # логотип + favicon
+│   ├── favicon.svg                # favicon
 │   ├── og.png                     # 1200×630 (Open Graph)
 │   ├── media_articles/            # медиа статей (картинки/видео/аудио/PDF)
-│   └── projects/<slug>/           # ассеты проектов (шрифты, спрайты, v86, smil-приложение)
+│   └── projects/<slug>/           # ассеты проектов (шрифты, спрайты, v86)
 ├── references/                    # read-only справочные материалы (вне сборки)
 └── src/
     ├── app/                       # маршруты, layout, шапка, страницы ошибок

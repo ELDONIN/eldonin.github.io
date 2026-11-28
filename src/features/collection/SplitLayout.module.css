@@ -1,6 +1,6 @@
 .root {
   display: grid;
-  grid-template-columns: 20rem minmax(0, 1fr);
+  grid-template-columns: var(--brand-w) minmax(0, 1fr);
   align-items: start;
 }
 
@@ -35,6 +35,9 @@
   .aside {
     position: static;
     height: auto;
+    /* Список занимает экран, футер прижат к нижнему краю
+       (при длинном списке он просто оказывается в конце страницы) */
+    min-height: calc(100dvh - var(--header-h));
     border-right: none;
   }
 

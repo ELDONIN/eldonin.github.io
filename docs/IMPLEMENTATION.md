@@ -86,11 +86,14 @@ interface EntryMeta {
 
 ## 6. Вёрстка
 
-- Токены — в `globals.css`: `--bg`, `--fg`, `--muted`, `--border`, `--accent`, `--code-bg`, `--callout-*`, `--space-*`, `--radius`, `--header-h`, `--font-*`, `--logo-*`. Тёмная тема в `:root`, светлая — `:root[data-theme='light']`.
-- `SplitLayout` (feature collection) — сетка `20rem / 1fr`; правая область Playground (проп `app`) — `height: calc(100dvh - var(--header-h)); overflow: hidden`.
+- Токены — в `globals.css`: `--bg`, `--fg`, `--muted`, `--border`, `--accent`, `--code-bg`, `--callout-*`, `--space-*`, `--radius`, `--header-h`, `--brand-w`, `--font-*`, `--surface-*`, `--logo-*`. Тёмная тема в `:root`, светлая — `:root[data-theme='light']`.
+- Неровный фон проектов — `background: var(--surface)`: радиальный блик + градиент, значения — производные от `--bg`/`--fg`; части доступны как `--surface-glow`, `--surface-top`, `--surface-bottom`. Для canvas-сцен есть `--surface-deep`: в тёмной теме заметно темнее `--bg`, в светлой — слегка серый (`#e8e6e2`), чтобы сцена отличалась от белого `--bg`.
+- `SplitLayout` (feature collection) — сетка `var(--brand-w) / 1fr` (та же колонка, что у бренда в шапке); правая область Playground (проп `app`) — `height: calc(100dvh - var(--header-h)); overflow: hidden`.
+- `--brand-w` — ширина колонки бренда в шапке, от неё начинается навигация. Страница Links на десктопе использует тот же отступ (`calc(var(--brand-w) + var(--space-3))`), поэтому список начинается там же, где подписи разделов; на мобильных контент снова центрируется.
 - Прокрутка: Playground — правая область; Articles/Links — окно.
-- Мобильные — через атрибут `data-has-selection` (CSS-переключение, без user-agent и JS-проверок ширины).
+- Мобильные — через атрибут `data-has-selection` (CSS-переключение, без user-agent и JS-проверок ширины). На мобильных `.aside` получает `min-height: calc(100dvh - var(--header-h))`, поэтому футер (`margin-top: auto`) прижат к нижнему краю экрана, а не к концу короткого списка.
 - Проза — `features/articles/ui/Prose.module.css` (селекторы `.prose …`), колонка `max-width: 64rem`, `h2–h6` с `scroll-margin-top`.
+- Проекты Playground — те же токены: DOM/SVG-часть через CSS Modules, литералы только для собственной палитры (см. требования). Цвета canvas читаются из `getComputedStyle(document.documentElement)` и обновляются при смене `data-theme` (раздел 9).
 
 ## 7. Фильтрация по тегам
 
@@ -125,8 +128,10 @@ interface EntryMeta {
 - Canvas-проекты — через `shared/ui/CanvasHost`: создаёт `<canvas>`, следит за размером (`ResizeObserver`), крутит `requestAnimationFrame` только пока холст виден, вкладка активна и нет `prefers-reduced-motion`. Фабрика `createSketch(canvas, host)`.
 - DOM/SVG-проекты — через хуки `shared/lib/host` (`useElementSize`, `useActive`).
 - Встраивание в статью — `<Project slug height />` внутри `InView` (монтируется при первом пересечении видимости, `rootMargin: 200px`).
-- Самодостаточные legacy-приложения — iframe из `public/projects/<slug>/` (пример — `smil-test`).
+- Самодостаточные legacy-приложения допустимо запускать в iframe из `public/projects/<slug>/`, если портирование в React нецелесообразно; сейчас таких проектов нет.
+- SMIL-тест — нативный React-проект: тексты вопросов и ключи — в `content/projects/smil-test/data/`, чистая логика — в `lib/` (`score.ts`, `answers.ts`, `extraScales.ts`), UI — в `ui/`. Профиль рисуется SVG вместо Flot; формат `localStorage` и экспорта совместим с legacy (`smil_answers_v1`).
 - Проект не обращается к серверу; внешние данные — только клиентский `fetch` или `public/`.
+- Тема: DOM/SVG-проекты переключаются автоматически через CSS-токены. Canvas-проекты читают `--surface-deep` (фон сцены) и `--fg` через `getComputedStyle(document.documentElement)`: 2D-холсты заливают фон с `ctx.globalAlpha`, WebGL — `gl.clearColor` из распарсенного токена. По `MutationObserver` на `documentElement` (`data-theme`) палитра обновляется и кадр перерисовывается; `getComputedStyle` не вызывается внутри `frame`. Для legacy-iframe (если появится) фиксированная вёрстка допустима: тема сайта в отдельный документ не наследуется.
 - Загрузка — `PaneLoader` через опцию `loading` у `next/dynamic`; ошибки — `app/playground/error.tsx`.
 
 ## 10. SEO
@@ -137,7 +142,7 @@ interface EntryMeta {
 
 ## 11. Тесты
 
-- Юнит-тесты чистой логики — рядом с кодом (`*.test.ts`): коллекция/теги/фильтр/`?tags=`, `normalizeUrl`, `parseImageAlt`, `mediaKind`, `computeBufferSize`, `toCanonicalPath`, правила `remarkArticleRules`, `pageMetadata`, `rehypeFixMathml`, `rehypeUnwrapProject`.
+- Юнит-тесты чистой логики — рядом с кодом (`*.test.ts`): коллекция/теги/фильтр/`?tags=`, `normalizeUrl`, `parseImageAlt`, `mediaKind`, `computeBufferSize`, `toCanonicalPath`, правила `remarkArticleRules`, `pageMetadata`, `rehypeFixMathml`, `rehypeUnwrapProject`, подсчёт и импорт/экспорт SMIL (включая parity-фикстуры из legacy).
 - `content/meta.test.ts` — zod-схемы на реальных манифестах (форматы полей, непустые списки, уникальность `title`/`slug`, уникальность `url` после нормализации, `updateDate ≥ createDate`).
 - `content/integrity.test.ts` (читает ФС, в бандл не попадает): папки проектов/виджетов совпадают со слагами (у каждой `index.tsx`), статьи проходят `parseArticle` с реальными слагами и медиа, имена медиа `^[a-z0-9][a-z0-9._-]*$`, файлы в `public/` ≤ 50 МБ, есть `.nojekyll`.
 - Вручную после деплоя: `/sitemap.xml`, `/robots.txt`, исходный HTML статьи (`<h1>`, canonical, `og:*`), `/` → `/playground/`, 404, сброс прокрутки, мобильная раскладка.

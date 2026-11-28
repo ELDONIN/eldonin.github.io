@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './index.module.css'
 
-const BASE = '/projects/spoc-virtualbox'
+const BASE = '/projects/spoc-emulator'
 
 interface V86Emulator {
   destroy(): Promise<void>
@@ -57,11 +57,11 @@ const SCANCODES: Record<string, number[]> = (() => {
     NumpadAdd: [0x4e],
     NumpadDecimal: [0x53],
   }
-  'Digit1 Digit2 Digit3 Digit4 Digit5 Digit6 Digit7 Digit8 Digit9 Digit0'.split(' ').forEach(
-    (c, i) => {
+  'Digit1 Digit2 Digit3 Digit4 Digit5 Digit6 Digit7 Digit8 Digit9 Digit0'
+    .split(' ')
+    .forEach((c, i) => {
       m[c] = [0x02 + i]
-    },
-  )
+    })
   ;[
     ['QWERTYUIOP', 0x10],
     ['ASDFGHJKL', 0x1e],
@@ -73,7 +73,9 @@ const SCANCODES: Record<string, number[]> = (() => {
   })
   for (let f = 1; f <= 10; f += 1) m[`F${String(f)}`] = [0x3a + f]
   for (let n = 0; n <= 9; n += 1) {
-    m[`Numpad${String(n)}`] = [[0x52, 0x4f, 0x50, 0x51, 0x4b, 0x4c, 0x4d, 0x47, 0x48, 0x49][n] as number]
+    m[`Numpad${String(n)}`] = [
+      [0x52, 0x4f, 0x50, 0x51, 0x4b, 0x4c, 0x4d, 0x47, 0x48, 0x49][n] as number,
+    ]
   }
   return m
 })()
@@ -122,7 +124,6 @@ export default function Project() {
   const overlayTextRef = useRef<HTMLParagraphElement>(null)
   const progressRef = useRef<HTMLProgressElement>(null)
   const retryRef = useRef<HTMLButtonElement>(null)
-  const statusRef = useRef<HTMLParagraphElement>(null)
   const btnRestartRef = useRef<HTMLButtonElement>(null)
   const btnPauseRef = useRef<HTMLButtonElement>(null)
   const btnFullRef = useRef<HTMLButtonElement>(null)
@@ -136,7 +137,6 @@ export default function Project() {
     const overlayText = overlayTextRef.current!
     const progress = progressRef.current!
     const retryBtn = retryRef.current!
-    const statusEl = statusRef.current!
     const btnRestart = btnRestartRef.current!
     const btnPause = btnPauseRef.current!
     const btnFull = btnFullRef.current!
@@ -199,7 +199,6 @@ export default function Project() {
 
     async function start(): Promise<void> {
       destroyEmulator()
-      statusEl.textContent = ''
       const V86 = await loadV86Script()
       if (!V86) {
         showOverlay('Не удалось загрузить эмулятор (libv86.js).', { error: true, retry: true })
@@ -267,7 +266,6 @@ export default function Project() {
         if (em !== emulator || token !== startToken) return
         presetClock(em)
         hideOverlay()
-        statusEl.textContent = 'Загрузка SPOC…'
         em.run()
         paceBoot(em, token)
       })
@@ -288,7 +286,6 @@ export default function Project() {
       const cv = screenEl.querySelector('canvas')
       if (!cv) {
         setReady(true)
-        statusEl.textContent = 'Кликните по экрану, чтобы вводить с клавиатуры.'
         return
       }
       const canvas = cv
@@ -316,7 +313,6 @@ export default function Project() {
         if (em !== emulator || token !== startToken) return
         holding = false
         setReady(true)
-        statusEl.textContent = 'Кликните по экрану, чтобы вводить с клавиатуры.'
         screenEl.focus()
       }
 
@@ -457,10 +453,8 @@ export default function Project() {
             screenEl.focus()
           })
           .catch(() => {
-            statusEl.textContent = 'Полноэкранный режим недоступен в этом браузере.'
+            /* браузер не разрешил полноэкранный режим */
           })
-      } else {
-        statusEl.textContent = 'Полноэкранный режим недоступен в этом браузере.'
       }
     }
     const onRetry = (): void => {
@@ -496,8 +490,8 @@ export default function Project() {
       <header className={styles.head}>
         <h2 className={styles.headTitle}>NASA SPOC Emulator</h2>
         <p className={styles.headDesc}>
-          Бортовой компьютер SPOC космического челнока на ноутбуке GRiD Compass: загрузочная
-          дискета работает прямо в вашем браузере.
+          Бортовой компьютер SPOC космического челнока на ноутбуке GRiD Compass: загрузочная дискета
+          работает прямо в вашем браузере.
         </p>
       </header>
 
@@ -533,7 +527,6 @@ export default function Project() {
           На весь экран
         </button>
       </section>
-      <p className={styles.status} ref={statusRef} role="status" />
       <p className={styles.hint}>
         Эмулятор работает с физической клавиатурой: кликните по экрану, чтобы он получил фокус.
         Клавиша CODE — это Alt (на Mac — Option). Alt+Enter подтверждает форму целиком; если везде
@@ -541,8 +534,10 @@ export default function Project() {
       </p>
 
       <article className={styles.doc}>
-        <section>
-          <h2>1. Управление</h2>
+        <details className={styles.docDetails} open>
+          <summary className={styles.docSummary}>
+            <h2>1. Управление</h2>
+          </summary>
           <p>
             Эмулятор работает с физической клавиатурой: сначала кликните по экрану, чтобы он получил
             фокус.
@@ -553,7 +548,8 @@ export default function Project() {
               удерживать, пока нажимается вторая клавиша.
             </li>
             <li>
-              <kbd>Alt</kbd>+<kbd>Enter</kbd> (CODE-RETURN) — подтвердить форму целиком и перейти дальше.
+              <kbd>Alt</kbd>+<kbd>Enter</kbd> (CODE-RETURN) — подтвердить форму целиком и перейти
+              дальше.
             </li>
             <li>
               <kbd>Enter</kbd> (RETURN) — перейти к следующему полю формы.
@@ -570,45 +566,49 @@ export default function Project() {
             </li>
             <li>Стрелки — выбор пункта в меню.</li>
             <li>
-              Кнопки под экраном: «Перезапуск» загружает дискету заново, «Пауза» замораживает эмуляцию,
-              «На весь экран» растягивает экран (выход — <kbd>Esc</kbd>).
+              Кнопки под экраном: «Перезапуск» загружает дискету заново, «Пауза» замораживает
+              эмуляцию, «На весь экран» растягивает экран (выход — <kbd>Esc</kbd>).
             </li>
             <li>На телефоне и планшете нужна подключённая клавиатура: экранной клавиатуры нет.</li>
           </ul>
-        </section>
+        </details>
 
-        <section>
-          <h2>2. Что нужно вводить при запуске</h2>
+        <details className={styles.docDetails}>
+          <summary className={styles.docSummary}>
+            <h2>2. Что нужно вводить при запуске</h2>
+          </summary>
           <p className={styles.note}>
             <b>
-              Если везде просто нажимать <kbd>Alt</kbd>+<kbd>Enter</kbd>, вы получите данные миссии STS-31
+              Если везде просто нажимать <kbd>Alt</kbd>+<kbd>Enter</kbd>, вы получите данные миссии
+              STS-31
             </b>{' '}
             — старт шаттла «Дискавери» с телескопом «Хаббл» 24 апреля 1990 года в 12:33:51 GMT
-            (космический центр Кеннеди, площадка LC-39B). Время старта и часы эмулятора настроены под
-            эту миссию. Вектор состояния — штатный условный вектор программы, а не реальный вектор STS-31.
+            (космический центр Кеннеди, площадка LC-39B). Время старта и часы эмулятора настроены
+            под эту миссию. Вектор состояния — штатный условный вектор программы, а не реальный
+            вектор STS-31.
           </p>
           <p>
-            После загрузки SPOC последовательно показывает три формы. Значения по умолчанию уже корректны,
-            достаточно нажимать <kbd>Alt</kbd>+<kbd>Enter</kbd> на каждом экране. Правило программы 1980-х:
-            годы только <b>до 2000-го</b>, время запуска &lt; время вектора состояния &lt; текущее время, и
-            между вектором и текущим временем не больше двух суток.
+            После загрузки SPOC последовательно показывает три формы. Значения по умолчанию уже
+            корректны, достаточно нажимать <kbd>Alt</kbd>+<kbd>Enter</kbd> на каждом экране. Правило
+            программы 1980-х: годы только <b>до 2000-го</b>, время запуска &lt; время вектора
+            состояния &lt; текущее время, и между вектором и текущим временем не больше двух суток.
           </p>
           <h3>Форма 1. Launch Time Update — время старта миссии (GMT)</h3>
           <p>
-            Год (1983–1999), день года, часы, минуты, секунды по Гринвичу. По умолчанию: 1990 год, день 114,
-            12:33:51 (это 24 апреля, старт STS-31).
+            Год (1983–1999), день года, часы, минуты, секунды по Гринвичу. По умолчанию: 1990 год,
+            день 114, 12:33:51 (это 24 апреля, старт STS-31).
           </p>
           <h3>Форма 2. GMT Update — текущее время</h3>
           <p>
-            День года, часы, минуты и год «сейчас». Часы эмулятора заранее выставлены на 24 апреля 1990 года,
-            около 14:15 GMT, потому что программа не принимает 2020-е годы.
+            День года, часы, минуты и год «сейчас». Часы эмулятора заранее выставлены на 24 апреля
+            1990 года, около 14:15 GMT, потому что программа не принимает 2020-е годы.
           </p>
           <h3>Форма 3. State Vector Update — вектор состояния</h3>
           <p>Положение и скорость корабля на орбите в системе координат M50 плюс момент времени:</p>
           <ul>
             <li>
-              <b>Day / Hour / Minute / Second (GMT)</b> — время привязки вектора (по умолчанию запуск + 1 ч
-              13 мин 35 с);
+              <b>Day / Hour / Minute / Second (GMT)</b> — время привязки вектора (по умолчанию
+              запуск + 1 ч 13 мин 35 с);
             </li>
             <li>
               <b>X, Y, Z Position (KFt)</b> — координаты в тысячах футов;
@@ -618,24 +618,32 @@ export default function Project() {
             </li>
           </ul>
           <p>
-            После <kbd>Alt</kbd>+<kbd>Enter</kbd> появится контрольная проверка: <code>Inclination = 28.522</code>,{' '}
-            <code>HA=200; HP=189</code>. Если значения разумны, подтвердите ещё раз — откроется главное меню.
+            После <kbd>Alt</kbd>+<kbd>Enter</kbd> появится контрольная проверка:{' '}
+            <code>Inclination = 28.522</code>, <code>HA=200; HP=189</code>. Если значения разумны,
+            подтвердите ещё раз — откроется главное меню.
           </p>
           <h3>Путь «просто вперёд»</h3>
           <ol>
-            <li>Launch Time Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
-            <li>GMT Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
             <li>
-              State Vector Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>, затем ещё раз после контрольной проверки.
-            </li>
-            <li>Главное меню: <b>Display World Map</b> — <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
-            <li>
-              Менеджер станций: <b>Invoke Default Communication Sites</b> — <kbd>Alt</kbd>+<kbd>Enter</kbd>.
-              Через несколько секунд появится карта мира.
+              Launch Time Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>.
             </li>
             <li>
-              На карте <kbd>Alt</kbd>+<kbd>?</kbd> открывает список функций, <kbd>Alt</kbd>+<kbd>Esc</kbd>{' '}
-              возвращает в главное меню.
+              GMT Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>.
+            </li>
+            <li>
+              State Vector Update — <kbd>Alt</kbd>+<kbd>Enter</kbd>, затем ещё раз после контрольной
+              проверки.
+            </li>
+            <li>
+              Главное меню: <b>Display World Map</b> — <kbd>Alt</kbd>+<kbd>Enter</kbd>.
+            </li>
+            <li>
+              Менеджер станций: <b>Invoke Default Communication Sites</b> — <kbd>Alt</kbd>+
+              <kbd>Enter</kbd>. Через несколько секунд появится карта мира.
+            </li>
+            <li>
+              На карте <kbd>Alt</kbd>+<kbd>?</kbd> открывает список функций, <kbd>Alt</kbd>+
+              <kbd>Esc</kbd> возвращает в главное меню.
             </li>
           </ol>
           <h3>Если хотите ввести значения вручную</h3>
@@ -671,13 +679,15 @@ export default function Project() {
             </tbody>
           </table>
           <p>
-            После формы GMT появится <code>CAUTION: Vector is in the future</code> — это нормально, нажмите{' '}
-            <kbd>Alt</kbd>+<kbd>Enter</kbd>.
+            После формы GMT появится <code>CAUTION: Vector is in the future</code> — это нормально,
+            нажмите <kbd>Alt</kbd>+<kbd>Enter</kbd>.
           </p>
-        </section>
+        </details>
 
-        <section>
-          <h2>3. Роль SPOC в истории</h2>
+        <details className={styles.docDetails}>
+          <summary className={styles.docSummary}>
+            <h2>3. Роль SPOC в истории</h2>
+          </summary>
           <figure className={styles.figure}>
             <img
               src={`${BASE}/spoc-onboard.jpg`}
@@ -685,52 +695,62 @@ export default function Project() {
               loading="lazy"
             />
             <figcaption className={styles.figcaption}>
-              SPOC на борту: на янтарном экране ноутбука — карта мира с границей дня и ночи и трассой орбиты.
+              SPOC на борту: на янтарном экране ноутбука — карта мира с границей дня и ночи и
+              трассой орбиты.
             </figcaption>
           </figure>
           <p>
-            SPOC (Shuttle Portable Onboard Computer) — один из первых портативных компьютеров в космосе.
-            С первого полёта (STS-1) независимые расчёты на борту делал калькулятор HP-41. В 1983 году NASA
-            выбрало ноутбук GRiD Compass 1101, и на STS-9 он впервые полетел как проверка идеи. SPOC оказался
-            так полезен для «ситуационной осведомлённости» экипажа, что летал на каждой следующей миссии, а
-            начиная с 41-G на борту было уже два комплекта.
+            SPOC (Shuttle Portable Onboard Computer) — один из первых портативных компьютеров в
+            космосе. С первого полёта (STS-1) независимые расчёты на борту делал калькулятор HP-41.
+            В 1983 году NASA выбрало ноутбук GRiD Compass 1101, и на STS-9 он впервые полетел как
+            проверка идеи. SPOC оказался так полезен для «ситуационной осведомлённости» экипажа, что
+            летал на каждой следующей миссии, а начиная с 41-G на борту было уже два комплекта.
           </p>
           <ul>
             <li>
-              <b>Что он делал.</b> Показывал карту мира, текущее положение корабля, границу дня и ночи, текущую
-              и две будущие трассы, времена входа в зону связи и выхода из неё (AOS/LOS) для наземных станций
-              и спутников TDRS, восход и закат на орбите.
+              <b>Что он делал.</b> Показывал карту мира, текущее положение корабля, границу дня и
+              ночи, текущую и две будущие трассы, времена входа в зону связи и выхода из неё
+              (AOS/LOS) для наземных станций и спутников TDRS, восход и закат на орбите.
             </li>
             <li>
-              <b>Зачем это нужно.</b> Экономил время Центра управления полётом: не нужно было передавать
-              таблицы голосом или телетайпом.
+              <b>Зачем это нужно.</b> Экономил время Центра управления полётом: не нужно было
+              передавать таблицы голосом или телетайпом.
             </li>
             <li>
-              <b>Железо.</b> Ноутбуки дорабатывали для полёта: вместо модема — вентилятор, защита батареи
-              часов и экран против излучения. Электролюминесцентный дисплей светился жёлто-янтарным — отсюда
-              цвет экрана.
+              <b>Железо.</b> Ноутбуки дорабатывали для полёта: вместо модема — вентилятор, защита
+              батареи часов и экран против излучения. Электролюминесцентный дисплей светился
+              жёлто-янтарным — отсюда цвет экрана.
             </li>
             <li>
-              <b>Статус.</b> «Некритичное, но обязательное» оборудование: отказ не угрожал миссии, но без него
-              работать было сложнее.
+              <b>Статус.</b> «Некритичное, но обязательное» оборудование: отказ не угрожал миссии,
+              но без него работать было сложнее.
             </li>
           </ul>
           <p>
-            Образ на этой странице — публичная редакция SPOC, которую NASA распространяла через Spacelink для
-            обычных IBM PC. Она запускается в эмуляторе x86, а не на полётном ноутбуке GRiD.
+            Образ на этой странице — публичная редакция SPOC, которую NASA распространяла через
+            Spacelink для обычных IBM PC. Она запускается в эмуляторе x86, а не на полётном ноутбуке
+            GRiD.
           </p>
-        </section>
+        </details>
 
         <section>
-          <h2>4. Ссылки</h2>
+          <h2>Ссылки</h2>
           <ul>
             <li>
-              <a href="https://www.youtube.com/watch?v=quHlMiwTQZs" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://www.youtube.com/watch?v=quHlMiwTQZs"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Видео-демонстрация на YouTube
               </a>
             </li>
             <li>
-              <a href="https://github.com/robertely/SPOC-VirtualBox" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://github.com/robertely/SPOC-VirtualBox"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Проект SPOC-VirtualBox на GitHub
               </a>
             </li>
@@ -745,4 +765,3 @@ export default function Project() {
     </div>
   )
 }
-

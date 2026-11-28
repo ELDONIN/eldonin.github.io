@@ -13,6 +13,8 @@ const GAP_ROWS = 1;
 const SIDE_MARGIN = 2;
 const HINT = "ESC - Exit    ARROWS - Previous, next";
 const ROW_PX = 16;
+// Единственное место с крупным шрифтом: сам арт рисуется вдвое крупнее (32px вместо 16px).
+const ART_SCALE = 2;
 
 export function createArtViewProgram() {
   return {
@@ -57,8 +59,8 @@ function render(programState, ctx) {
 
   // Арт вдвое крупнее, если помещается по ширине и высоте, иначе обычного размера.
   const availRows = Math.max(1, rows - FOOTER_ROWS - GAP_ROWS);
-  const big = art.width * 2 + SIDE_MARGIN * 2 <= cols && art.height * 2 <= availRows;
-  const scale = big ? 2 : 1;
+  const big = art.width * ART_SCALE + SIDE_MARGIN * 2 <= cols && art.height * ART_SCALE <= availRows;
+  const scale = big ? ART_SCALE : 1;
   const artCols = art.width * scale;
   const artRows = art.height * scale;
   const top = Math.max(0, Math.floor((availRows - artRows) / 2));
@@ -66,7 +68,7 @@ function render(programState, ctx) {
 
   const body = art.lines.map(textToHtml).join("\n");
   const artStyle = big
-    ? `font-size:${ROW_PX * 2}px;line-height:${ROW_PX * 2}px;padding-left:${left / 2}ch;height:${artRows * ROW_PX}px`
+    ? `font-size:${ROW_PX * ART_SCALE}px;line-height:${ROW_PX * ART_SCALE}px;padding-left:${left / ART_SCALE}ch;height:${artRows * ROW_PX}px`
     : `padding-left:${left}ch;height:${artRows * ROW_PX}px`;
 
   const footerTop = Math.max(0, rows - FOOTER_ROWS);

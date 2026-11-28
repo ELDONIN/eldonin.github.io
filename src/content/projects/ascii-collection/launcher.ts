@@ -18,18 +18,11 @@ import {
   buildHintText,
   buildTable,
   charRowsToHtml,
-  getTerminalCell
-} from "./core";
-import {
-  ART_FILES,
-  ARTS_DIR,
-  LINKS_FILE,
-  ensureArts,
-  ensureLinks,
-  reloadArts,
-  reloadLinks,
+  getTerminalCell,
   textLength
-} from "./data";
+} from "./core";
+import { ASCII_ARTS } from "./ascii-arts";
+import { ASCII_LINKS } from "./ascii-links";
 
 const TABS = [
   { id: "arts", label: "Arts" },
@@ -147,7 +140,7 @@ export function createLauncher() {
         area: { x: 0, y: 0, width: bigCols, footerY: bigRows, height: bigRows }
       };
     }
-    state.hits = { area: target.area, big };
+    state.hits = { big };
     state.hint = [];
 
     drawSidebar(canvas, rows);
@@ -225,13 +218,12 @@ export function createLauncher() {
 
   // ----- ARTS -----
   function drawArts(canvas, marks, area) {
-    const resource = ensureArts();
-    if (resource.status !== "ready") {
-      drawResourceStatus(canvas, area, resource, [`${ARTS_DIR}${ART_FILES[0]}`, `${ARTS_DIR}${ART_FILES[1]}`], "arts");
+    const arts = ASCII_ARTS;
+    if (!arts.length) {
+      drawCentered(canvas, area, ["No arts yet."]);
       return;
     }
 
-    const arts = resource.items;
     const layout = getArtLayout(arts, area.width);
     const maxScroll = Math.max(0, layout.total - area.height);
     const view = state.arts;
@@ -412,18 +404,12 @@ export function createLauncher() {
 
   // ----- LINKS -----
   function drawLinks(canvas, marks, area) {
-    const resource = ensureLinks();
-    if (resource.status !== "ready") {
-      drawResourceStatus(canvas, area, resource, [LINKS_FILE], "links");
+    const links = ASCII_LINKS;
+    if (!links.length) {
+      drawCentered(canvas, area, ["No links yet."]);
       return;
     }
 
-    if (!resource.items.length) {
-      drawCentered(canvas, area, [`No links yet. Add lines "Name | https://address" to ${LINKS_FILE}.`]);
-      return;
-    }
-
-    const links = resource.items;
     const nameWidth = Math.min(24, Math.max(11, ...links.map((link) => textLength(link.name))));
     const urlWidth = Math.max(8, Math.min(Math.max(...links.map((link) => textLength(link.url))), area.width - nameWidth - 7));
     const table = buildTable([nameWidth, urlWidth], ["Description", "Link"], links.map((link) => [link.name, link.url]));
@@ -440,24 +426,6 @@ export function createLauncher() {
 
     drawFooter(canvas, area, [["UP/DOWN - Select", "LMB/ENTER - Open"]]);
     state.hits.links = { x, y: y + 3, count: links.length, width: table[0].length };
-  }
-
-  // Заглушка, пока ресурс грузится или не загрузился.
-  function drawResourceStatus(canvas, area, resource, files, kind) {
-    if (resource.status === "error") {
-      const lines = [
-        `Cannot load ${files.join(", ")}`,
-        `(${resource.error})`,
-        "Open the site through a static server, not from a file.",
-        "",
-        "Click or press ENTER to try again."
-      ];
-      drawCentered(canvas, area, lines);
-      state.hits.retry = kind;
-      return;
-    }
-
-    drawCentered(canvas, area, ["Loading..."]);
   }
 
   // Блок строк по центру области по горизонтали (и по вертикали при middle).
@@ -498,18 +466,12 @@ export function createLauncher() {
       return;
     }
 
-    if (state.hits && state.hits.retry && event.key === "Enter") {
-      event.preventDefault();
-      retry(state.hits.retry);
-      return;
-    }
-
     if (state.tab === TAB_ARTS) {
       handleArtsKey(ctx, event);
     } else if (state.tab === TAB_GAMES) {
       handleListKey(event, state.games, gamePrograms(ctx).length, (index) => startGame(ctx, index));
     } else if (state.tab === TAB_LINKS) {
-      handleListKey(event, state.links, ensureLinks().items.length, (index) => openLink(index));
+      handleListKey(event, state.links, ASCII_LINKS.length, (index) => openLink(index));
     }
   }
 
@@ -536,11 +498,6 @@ export function createLauncher() {
   }
 
   function handleArtsKey(ctx, event) {
-    const resource = ensureArts();
-    if (resource.status !== "ready") {
-      return;
-    }
-
     const view = state.arts;
     const layout = view.layout;
     if (!layout) {
@@ -687,9 +644,6 @@ export function createLauncher() {
       case "link":
         openLink(hit.index);
         break;
-      case "retry":
-        retry(hit.what);
-        break;
       default:
     }
   }
@@ -710,10 +664,6 @@ export function createLauncher() {
     const local = toLayerCell(cell);
     if (!local) {
       return null;
-    }
-
-    if (hits.retry && state.tab !== null && local.col >= hits.area.x) {
-      return { kind: "retry", what: hits.retry };
     }
 
     if (hits.arts) {
@@ -775,11 +725,10 @@ export function createLauncher() {
 
   // ---------- actions ----------
   function openArt(ctx, index) {
-    const resource = ensureArts();
-    if (resource.status === "ready" && resource.items[index]) {
+    if (ASCII_ARTS[index]) {
       ctx.terminal.style.cursor = "default";
       state.arts.active = index;
-      ctx.openProgram("artview", [resource.items, index]);
+      ctx.openProgram("artview", [ASCII_ARTS, index]);
     }
   }
 
@@ -794,17 +743,9 @@ export function createLauncher() {
   }
 
   function openLink(index) {
-    const link = ensureLinks().items[index];
+    const link = ASCII_LINKS[index];
     if (link && /^https?:\/\//i.test(link.url)) {
       window.open(link.url, "_blank", "noopener,noreferrer");
-    }
-  }
-
-  function retry(what) {
-    if (what === "arts") {
-      reloadArts();
-    } else {
-      reloadLinks();
     }
   }
 

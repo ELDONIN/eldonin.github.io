@@ -55,3 +55,14 @@ export function findEntryBySlug(
 export function serializeTags(tags: readonly string[]): string {
   return tags.join(',')
 }
+
+/** Суффикс адреса с выбранными тегами: `?tags=a,b` либо пустая строка. */
+export function tagsQuery(selected: readonly string[]): string {
+  const serialized = serializeTags(selected)
+  return serialized === '' ? '' : `?tags=${serialized}`
+}
+
+/** Адрес записи с сохранением выбранных тегов: при переходе фильтр не сбрасывается. */
+export function entryHref(basePath: string, slug: string, selected: readonly string[]): string {
+  return `${basePath}/${slug}/${tagsQuery(selected)}`
+}

@@ -7,12 +7,8 @@ export const PALETTE = " .,-~:;*=#$@";
 export const AUTO_RESUME_MS = 0;
 export const UI_INSET_TOP = 1;
 export const UI_INSET_LEFT = 2;
-export const FONT_CHAR_WIDTH = 8;
+// Шрифт терминала всегда 16px; знакоместо 8x16.
 export const FONT_CHAR_HEIGHT = 16;
-export const FONT_SCALE_STEPS = [4, 3, 2, 1, 0.5];
-// Шрифт сайта всегда 16px; арт на весь экран открывается на 32px.
-export const BASE_FONT_SCALE = 1;
-export const ART_FONT_SCALE = 2;
 export const STORAGE_PREFIX = "ascii_os_";
 export const STORAGE_KEYS = {
   console: "ascii_os_console_settings",
@@ -94,6 +90,11 @@ export function clearStoragePrefix(prefix) {
 }
 
 // ---------- text ----------
+// Длина в символах Unicode, а не в UTF-16 единицах.
+export function textLength(text) {
+  return Array.from(text).length;
+}
+
 export function insetTextLines(lines, topInset = 0, leftInset = 0) {
   const insetLines = [];
   const leftPadding = " ".repeat(Math.max(0, leftInset));

@@ -9,7 +9,7 @@ import {
   filterByTags,
   keepKnownTags,
   parseTagsQuery,
-  serializeTags,
+  tagsQuery,
 } from './lib/collection'
 
 interface FilteredCollectionProps {
@@ -34,8 +34,7 @@ export function FilteredCollection({ entries, basePath, selectedSlug }: Filtered
     const next = selectedTags.includes(tag)
       ? selectedTags.filter((t) => t !== tag)
       : [...selectedTags, tag]
-    const query = next.length > 0 ? `?tags=${serializeTags(next)}` : ''
-    router.replace(`${pathname}${query}`, { scroll: false })
+    router.replace(`${pathname}${tagsQuery(next)}`, { scroll: false })
   }
 
   return (

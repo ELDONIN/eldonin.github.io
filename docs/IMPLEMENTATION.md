@@ -101,6 +101,7 @@ interface EntryMeta {
 - `CollectionList` — презентационный компонент без хуков: теги-кнопки (`aria-pressed`) + список ссылок с описаниями.
 - `FilteredCollection` читает `?tags=` через `useSearchParams`, обязательно обёрнут в `Suspense` (иначе падает статический экспорт). Fallback — настоящий список (не скелетон): тот же `CollectionList` без фильтра, теги неинтерактивные.
 - Клик по тегу — `router.replace(url, { scroll: false })`. Пустой результат — «No matches».
+- Выбранные теги сохраняются при переходе на запись: ссылки списка строятся через `entryHref(basePath, slug, selectedTags)` (`/playground/<slug>/?tags=a,b`), а `← Back` (`BackLink`) возвращает в список с тем же `?tags=`. Так фильтр не сбрасывается при открытии проекта/статьи и после возврата.
 
 ## 8. Markdown-конвейер статей
 
@@ -130,6 +131,7 @@ interface EntryMeta {
 - Встраивание в статью — `<Project slug height />` внутри `InView` (монтируется при первом пересечении видимости, `rootMargin: 200px`).
 - Самодостаточные legacy-приложения допустимо запускать в iframe из `public/projects/<slug>/`, если портирование в React нецелесообразно; сейчас таких проектов нет.
 - SMIL-тест — нативный React-проект: тексты вопросов и ключи — в `content/projects/smil-test/data/`, чистая логика — в `lib/` (`score.ts`, `answers.ts`, `extraScales.ts`), UI — в `ui/`. Профиль рисуется SVG вместо Flot; формат `localStorage` и экспорта совместим с legacy (`smil_answers_v1`).
+- ASCII Collection — арты лежат как есть в одном файле `content/projects/ascii-collection/ascii-arts.txt` и импортируются строкой через `?raw` (webpack `asset/source`, правило в `next.config.ts`), ссылки — в `ascii-links.ts`; данные доступны синхронно, без `fetch` и состояний загрузки. Шрифт `WebPlus_IBM_VGA_8x16.woff` остаётся в `public/projects/ascii-collection/`.
 - Проект не обращается к серверу; внешние данные — только клиентский `fetch` или `public/`.
 - Тема: DOM/SVG-проекты переключаются автоматически через CSS-токены. Canvas-проекты читают `--surface-deep` (фон сцены) и `--fg` через `getComputedStyle(document.documentElement)`: 2D-холсты заливают фон с `ctx.globalAlpha`, WebGL — `gl.clearColor` из распарсенного токена. По `MutationObserver` на `documentElement` (`data-theme`) палитра обновляется и кадр перерисовывается; `getComputedStyle` не вызывается внутри `frame`. Для legacy-iframe (если появится) фиксированная вёрстка допустима: тема сайта в отдельный документ не наследуется.
 - Загрузка — `PaneLoader` через опцию `loading` у `next/dynamic`; ошибки — `app/playground/error.tsx`.

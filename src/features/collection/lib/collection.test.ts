@@ -2,16 +2,39 @@ import { describe, expect, it } from 'vitest'
 import type { EntryMeta } from '../model'
 import {
   collectTags,
+  entryHref,
   filterByTags,
   findEntryBySlug,
   keepKnownTags,
   parseTagsQuery,
+  tagsQuery,
 } from './collection'
 
 const entries = [
-  { slug: 'a', title: 'A', description: '', createDate: '2026-01-01', updateDate: '2026-01-01', tags: ['x', 'y'] },
-  { slug: 'b', title: 'B', description: '', createDate: '2026-01-01', updateDate: '2026-01-01', tags: ['x'] },
-  { slug: 'c', title: 'C', description: '', createDate: '2026-01-01', updateDate: '2026-01-01', tags: ['z'] },
+  {
+    slug: 'a',
+    title: 'A',
+    description: '',
+    createDate: '2026-01-01',
+    updateDate: '2026-01-01',
+    tags: ['x', 'y'],
+  },
+  {
+    slug: 'b',
+    title: 'B',
+    description: '',
+    createDate: '2026-01-01',
+    updateDate: '2026-01-01',
+    tags: ['x'],
+  },
+  {
+    slug: 'c',
+    title: 'C',
+    description: '',
+    createDate: '2026-01-01',
+    updateDate: '2026-01-01',
+    tags: ['z'],
+  },
 ] as const satisfies readonly EntryMeta[]
 
 describe('collectTags', () => {
@@ -61,5 +84,25 @@ describe('findEntryBySlug', () => {
 
   it('undefined, если записи нет', () => {
     expect(findEntryBySlug(entries, 'zzz')).toBeUndefined()
+  })
+})
+
+describe('tagsQuery', () => {
+  it('пустой выбор → пустая строка', () => {
+    expect(tagsQuery([])).toBe('')
+  })
+
+  it('выбранные теги → ?tags=a,b', () => {
+    expect(tagsQuery(['x', 'y'])).toBe('?tags=x,y')
+  })
+})
+
+describe('entryHref', () => {
+  it('без выбранных тегов — адрес записи', () => {
+    expect(entryHref('/playground', 'clock', [])).toBe('/playground/clock/')
+  })
+
+  it('с выбранными тегами фильтр сохраняется в адресе', () => {
+    expect(entryHref('/playground', 'clock', ['x', 'y'])).toBe('/playground/clock/?tags=x,y')
   })
 })

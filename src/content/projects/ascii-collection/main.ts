@@ -1,10 +1,8 @@
 /* eslint-disable */
 // @ts-nocheck
 import {
-  BASE_FONT_SCALE,
   DEFAULT_CONSOLE_COLORS,
   FONT_CHAR_HEIGHT,
-  FONT_CHAR_WIDTH,
   STORAGE_KEYS,
   STORAGE_PREFIX,
   clearStoragePrefix,
@@ -98,11 +96,6 @@ function createAppContext() {
     returnToMenu() {
       state.activeProgramId = null;
       state.lastLauncherHtml = null;
-      // Выход из программы всегда возвращает обычный шрифт 16px.
-      if (state.fontScaleOverride !== null) {
-        state.fontScaleOverride = null;
-        handleResize();
-      }
       ctx.persistUiState();
     },
     resetData,
@@ -110,9 +103,7 @@ function createAppContext() {
     persistUiState,
     persistConsoleSettings,
     getConsoleColors,
-    applyConsoleColors,
-    setFontScale,
-    getViewportCells
+    applyConsoleColors
   };
 }
 
@@ -135,29 +126,6 @@ function syncMeasureSpan() {
   state.measureSpan.style.lineHeight = style.lineHeight;
 }
 
-// Шрифт всегда 16px. Исключение - программа может временно запросить другой размер
-// (полноэкранный арт - 32px); размер кратен 8x16, чтобы пиксельные глифы оставались чёткими.
-function pickFontScale() {
-  return state.fontScaleOverride !== null ? state.fontScaleOverride : BASE_FONT_SCALE;
-}
-
-function setFontScale(scale) {
-  const next = typeof scale === "number" && scale > 0 ? scale : null;
-  if (next === state.fontScaleOverride) {
-    return;
-  }
-  state.fontScaleOverride = next;
-  handleResize();
-}
-
-// Сколько клеток поместится в окне при данном масштабе шрифта.
-function getViewportCells(scale) {
-  return {
-    cols: Math.floor(window.innerWidth / (FONT_CHAR_WIDTH * scale)),
-    rows: Math.floor(window.innerHeight / (FONT_CHAR_HEIGHT * scale))
-  };
-}
-
 function waitForFont() {
   if (!document.fonts) {
     return;
@@ -172,9 +140,9 @@ function handleResize() {
     return;
   }
 
-  const scale = pickFontScale();
-  terminal.style.fontSize = `${FONT_CHAR_HEIGHT * scale}px`;
-  terminal.style.lineHeight = `${FONT_CHAR_HEIGHT * scale}px`;
+  // Шрифт терминала всегда 16px: сетка и знакоместо считаются по 8x16.
+  terminal.style.fontSize = `${FONT_CHAR_HEIGHT}px`;
+  terminal.style.lineHeight = `${FONT_CHAR_HEIGHT}px`;
   syncMeasureSpan();
 
   const style = getComputedStyle(terminal);
@@ -187,10 +155,8 @@ function handleResize() {
   const contentWidth = Math.max(0, rect.width - paddingX);
   const contentHeight = Math.max(0, rect.height - paddingY);
   // Минимальный размер экрана защищает обычные экраны от слишком маленького окна.
-  // При запрошенном программой шрифте (арт на 32px) берём реальное число клеток.
-  const requested = state.fontScaleOverride !== null;
-  state.viewportCols = Math.max(requested ? 20 : 52, Math.floor(contentWidth / charWidth));
-  state.viewportRows = Math.max(requested ? 10 : 26, Math.floor(contentHeight / charHeight));
+  state.viewportCols = Math.max(52, Math.floor(contentWidth / charWidth));
+  state.viewportRows = Math.max(26, Math.floor(contentHeight / charHeight));
   state.charAspect = charWidth / charHeight;
   state.lastLauncherHtml = null;
   renderScreen();
@@ -525,7 +491,6 @@ function createAppState(programs) {
 
   return {
     activeProgramId: null,
-    fontScaleOverride: null,
     lastLauncherHtml: null,
     viewportCols: 120,
     viewportRows: 44,

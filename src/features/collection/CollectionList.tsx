@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { EntryMeta } from '@/features/collection/model'
+import { entryHref } from './lib/collection'
 import styles from './CollectionList.module.css'
 
 interface CollectionListProps {
@@ -59,7 +60,7 @@ export function CollectionList({
             return (
               <li key={entry.slug}>
                 <Link
-                  href={`${basePath}/${entry.slug}/`}
+                  href={entryHref(basePath, entry.slug, selectedTags)}
                   className={styles.item}
                   data-selected={selected ? 'true' : undefined}
                 >
